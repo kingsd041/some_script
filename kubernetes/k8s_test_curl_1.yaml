@@ -27,6 +27,16 @@ spec:
         app: test-curl-1
       name: test-curl-1
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - test-curl-2
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: testcurl
         image: ewoutp/docker-nginx-curl:latest
