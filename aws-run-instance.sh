@@ -1,23 +1,36 @@
+#!/bin/bash
+# Ubuntu-16.04: ami-0773391ae604c49a4
+# RancherOS: ami-0c728496e40cbbfe1
+read  -p "
+Input image_id:
+ami-0773391ae604c49a4--Ubuntu 16.04
+ami-0c728496e40cbbfe1--Rancheros v1.4.1
+: " image_id
 
-t2.medium: 2C4G
-t2.large: 2C8G
+read -p "
+Input template type:
+t2.small--1C2G
+t2.medium--2C4G
+t2.large--2C8G
+: " instance_type
 
-ubuntu 1604: ami-0181f8d9b6f098ec4
-windows: ami-068a5d5273c6e797e
+read -p "Select the number of instances(1-10): " count
 
-Linux:
-image_id=ami-0181f8d9b6f098ec4
-instance_type=t2.medium
-count=3
-disk_size=20
-instance_name=hailong-win1-linux-
+read -p "Input disk size (GB) :" disk_size
 
-Windows:
-image_id=ami-068a5d5273c6e797e
-instance_type=t2.large
-count=2
-disk_size=40
-instance_name=hailong-win1-windows-
+read -p "Input instance name: " instance_name
+echo -e "\n"
+read -p "Please confirm your input:
+    image_id = $image_id
+    instance_type = $instance_type
+    count = $count
+    disk_size = $disk_size
+    instance_name = $instance_name
+
+yes/no? " yes_no
+if [ $yes_no == "no" ];then
+    exit 1
+fi
 
 aws ec2 run-instances \
     --image-id $image_id \
@@ -26,8 +39,5 @@ aws ec2 run-instances \
     --key-name hailong \
     --security-group-ids sg-35b2634d \
     --subnet-id subnet-f7cd7d92 \
-    --iam-instance-profile Name="aws-k8s" \
     --block-device-mappings "[{\"DeviceName\":\"/dev/sda1\",\"Ebs\":{\"VolumeSize\":${disk_size},\"DeleteOnTermination\":false}}]"  \
-    --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name}},{Key=kubernetes.io/cluster/ksd,Value=owned}]" 'ResourceType=volume,Tags=[{Key=kubernetes.io/cluster/ksd,Value=owned}]'
-
-
+    --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${instance_name}}]"
