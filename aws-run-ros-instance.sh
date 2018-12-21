@@ -3,7 +3,7 @@ set -x
 instance_types="
 r4.large
 m4.large
-t3.nano
+t3.small
 c4.large
 p2.xlarge
 z1d.large
