@@ -28,7 +28,8 @@ read -p "Please confirm your input:
     instance_name = $instance_name
 
 yes/no? " yes_no
-if [ $yes_no == "no" ];then
+
+if [ $yes_no != "yes" ];then
     exit 1
 fi
 
