@@ -5,7 +5,7 @@
 # 默认值
 DEFAULT_PROJECT_NUM=2
 ## 每个项目拥有的命名空间个数, 例如DEFAULT_PROJECT_NUM=2  DEFAULT_NAMESPACE_NUM=3，将会创建 2*3=6个Namespace
-DEFAULT_NAMESPACE_NUM=2
+DEFAULT_NAMESPACE_NUM=3
 # DEFAULT_WORKLOAD_NUM=3
 DEFAULT_PROJECT_PREFIX="project"
 DEFAULT_NAMESPACE_PREFIX="ns"
@@ -21,17 +21,9 @@ function Msg() {
     echo "$1"
 }
 
-# 创建workload
-function CreateWorkload() {
-    ns=$1
-    # rancher apps install -n ns-1 nginx
-    result=$(rancher kubectl -n $ns apply -f template.yaml)
-    Log "$result in the $ns"
-}
-
 # 创建Project
 function CreateProject() {
-    Log "Start creating the project ... \n"
+    Log "Start creating the project ... "
 
     num=$1
 
@@ -69,9 +61,6 @@ function CreateNamespace() {
         else
             Log "Namespace "$DEFAULT_NAMESPACE_PREFIX-$i" was created failed"
         fi
-
-        # 在每个namespace中创建workload
-        CreateWorkload $DEFAULT_NAMESPACE_PREFIX-$i
     done
 }
 
@@ -110,9 +99,24 @@ function MoveNamespaceToProject() {
 
 }
 
+# 创建workload
+function CreateWorkload() {
+    Log "Start creating the workload ..."
+    num=$1
+
+    for i in $(seq $DEFAULT_START_NUM $num); do
+        # rancher apps install -n ns-1 nginx
+        result=$(rancher kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f template.yaml)
+        Log "$result in the $DEFAULT_NAMESPACE_PREFIX-$i"
+    done
+}
+
 CreateProject $DEFAULT_PROJECT_NUM
 CreateNamespace $(($DEFAULT_NAMESPACE_NUM * $DEFAULT_PROJECT_NUM))
 MoveNamespaceToProject $DEFAULT_PROJECT_NUM $DEFAULT_NAMESPACE_NUM
+CreateWorkload $(($DEFAULT_NAMESPACE_NUM * $DEFAULT_PROJECT_NUM))
+
+
 
 # 删除创建的workload
 ## for i in `kubectl get ns | grep -E 'ns-[0-9]*' | awk '{print $1}'`;do kubectl -n $i delete -f template.yaml ;done
