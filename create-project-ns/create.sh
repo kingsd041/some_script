@@ -54,7 +54,10 @@ function CreateNamespace() {
 
     for i in $(seq $DEFAULT_START_NUM $num); do
 
-        rancher namespaces create $DEFAULT_NAMESPACE_PREFIX-$i
+        # 通过rancher api
+        # rancher namespaces create $DEFAULT_NAMESPACE_PREFIX-$i
+        # 通过kube api
+        kubectl create ns $DEFAULT_NAMESPACE_PREFIX-$i
 
         if [[ $? == 0 ]]; then
             Log "Namespace "$DEFAULT_NAMESPACE_PREFIX-$i" was created successfully"
@@ -62,20 +65,6 @@ function CreateNamespace() {
             Log "Namespace "$DEFAULT_NAMESPACE_PREFIX-$i" was created failed"
         fi
     done
-}
-
-# 将命名空间移动到项目
-function MoveNamespaceToProject() {
-    pj=$1
-    ns=$2
-
-    rancher namespaces move $DEFAULT_NAMESPACE_PREFIX-$ns $DEFAULT_PROJECT_PREFIX-$pj
-
-    if [[ $? == 0 ]]; then
-        Log "$DEFAULT_NAMESPACE_PREFIX-$ns moved to $DEFAULT_PROJECT_PREFIX-$pj successfully"
-    else
-        Log "$DEFAULT_NAMESPACE_PREFIX-$ns moved to $DEFAULT_PROJECT_PREFIX-$pj failed"
-    fi
 }
 
 function MoveNamespaceToProject() {
@@ -106,7 +95,10 @@ function CreateWorkload() {
 
     for i in $(seq $DEFAULT_START_NUM $num); do
         # rancher apps install -n ns-1 nginx
-        result=$(rancher kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f template.yaml)
+        # 通过rancher api
+        ## result=$(rancher kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f template.yaml)
+        # 通过kube api
+        result=$(kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f template.yaml)
         Log "$result in the $DEFAULT_NAMESPACE_PREFIX-$i"
     done
 }
@@ -115,8 +107,6 @@ CreateProject $DEFAULT_PROJECT_NUM
 CreateNamespace $(($DEFAULT_NAMESPACE_NUM * $DEFAULT_PROJECT_NUM))
 MoveNamespaceToProject $DEFAULT_PROJECT_NUM $DEFAULT_NAMESPACE_NUM
 CreateWorkload $(($DEFAULT_NAMESPACE_NUM * $DEFAULT_PROJECT_NUM))
-
-
 
 # 删除创建的workload
 ## for i in `kubectl get ns | grep -E 'ns-[0-9]*' | awk '{print $1}'`;do kubectl -n $i delete -f template.yaml ;done
