@@ -19,3 +19,14 @@ Rancher 官网提供了一个移除 Rancher HA 的工具，[system-tools](https:
 ```
 ./remove_r_ha.sh
 ```
+
+## 排错
+
+如果在执行过程中出现异常：
+```
+panic: runtime error: invalid memory address or nil pointer dereference [recovered]
+	panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x30 pc=0x1d21949]
+```
+
+可以先执行`kubectl --namespace kube-system delete apiservice v1beta1.metrics.k8s.io` 然后在继续执行本脚本，参考：https://github.com/rancher/rancher/issues/20918
