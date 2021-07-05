@@ -11,7 +11,7 @@ KUBE_CONFIG='~/.kube/config'
 NAMESPACE=$(kubectl get ns | grep -E $NS | awk '{print $1}')  
 
 # 需要提前安装jq和rancher system-tools(https://rancher.com/docs/rancher/v2.x/en/system-tools/)
-for c in "jq" "system-tools"; do
+for c in "jq" "system-tools" "kubectl"; do
     if ! [ -x "$(command -v $c)" ]; then
         echo "Error: $c is not installed." >&2
         exit 1
