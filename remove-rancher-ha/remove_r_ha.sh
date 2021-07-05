@@ -6,7 +6,7 @@
 #    2. 本脚本只适用 Rancher v2.5，其他版本可以手动修改对应的命名空间
 NS="cattle-system|*fleet*|rancher-operator-system|cattle-global-nt|cattle-global-data"
 # 指定 kubeconfig 文件
-KUBE_CONFIG='~/.kube/config'
+KUBE_CONFIG='/root/.kube/config'
 
 NAMESPACE=$(kubectl get ns | grep -E $NS | awk '{print $1}')  
 
