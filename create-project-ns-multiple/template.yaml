@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: alpine-flag
+  name: alpine-flag
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: alpine-flag
+  template:
+    metadata:
+      labels:
+        run: alpine-flag
+    spec:
+      containers:
+      - image: alpine:latest
+        command:
+          - /bin/sh
+          - "-c"
+          - "sleep infinity"
+        imagePullPolicy: IfNotPresent
+        name: alpine-flag
+        volumeMounts:
+        - mountPath: /test
+          name: vol1
+        - mountPath: /configmap
+          name: vol2
+        - mountPath: /secret
+          name: vol4
+      volumes:
+      - emptyDir:
+          sizeLimit: 1Mi
+        name: vol1
+      - configMap:
+          defaultMode: 256
+          name: configmap-flag
+          optional: false
+        name: vol2
+      - name: vol4
+        secret:
+          defaultMode: 256
+          optional: false
+          secretName: secret-flag
+---
+apiVersion: v1
+data:
+  ssh-key: YzNOb0xYSnpZU0JCUVVGQlFqTk9lbUZETVhsak1rVkJRVUZCUkVGUlFVSkJRVUZDWjFGRE1rcExWMmhMVGtaTFVVZzFNblZRYURWWmNqbGtUSFU1WlV0UlJGRTNXWGhKV2t4cFkwUlhLM1o2TUZvck16aEpiV0pFU0dORU1tRTVNRVpVUzIxVGFEQkNlSEV4UTJwNlNHaGljRU13VUVwSmVFOXVaVmRTUzBWUFNuSndVRTVNVVZGTk9WbERhMWwySzJ0a2JXNHJNMGhQUlZsUUwyMDNRWGt4ZFV4V1YyeFRjMUp2V0hoclJqWllZMWgyUjNGa2IxYzVNSFV3Tkc1RllYZHBiREpFUVRSV2JuVTVVRk5IV25acGRESlVSbWx2YjFsUk1YQnRUVUV5VG1FeFVFOUdiREpsTDJGU1pEaFRXWFJTTHl0UU1FMXBVRTlsYkRGdVFVZDFiMmhXVlVKTE4zQkRkR3dyWTNsTVVqUkxZV1pVVTB0dk9YQjJZV3BGTWtncmNVZG9jR3hZUW01MFN5dEdSVmQ2UTFkWGMxQm1NbkZLY0VWYU9XZGpabU5oUVdkcmQzRXdRa2RXUlhCd05XZFFaWEJsVVVaMmFYQkxkbVIwYzBreVNGbHNiRVpXVDA5dVRubE9jREZvTDNCUGRrZDBiRmRCZVhsWVpWZEdSbmQwVFUxUFZIRkVRamwwVTNoM1UzQnFjMkZwZDBkak1IRjVRMkZEY2l0VFdGUmxUMXBVVkhSbWVGTlpXblF3V0hCMVpHazRTMHRQVjBwWGVuUjFRMlU1YTJwVE1WaEhWMUpETUhaQlprc3JVR1ZtWkRkT1ltMXBjRVJwZFNzM1FXTlNVSEV5ZFhaRFJtSnNaSGRLUVhod2NUVnZOemxvTjNWSFIwSmlkaXRWVURGVVlVeDNkakpwSzFCMFFqSnBielJhY0ZSYVVXOTRhVXRSZVVaM00wdHBiVzU0VWpnOUlHdHpaRUJyYzJRdWJHOWpZV3c9
+kind: Secret
+metadata:
+  name: secret-flag
+type: Opaque
+---
+apiVersion: v1
+data:
+  ssh-key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC2JKWhKN1FKQH52uPh5Yr9dLu9eKQDQ7YxIZLicDW+vz0Z+38ImbDHcD2a90FTKmSh0Bxq1CjzHhbpC0PJIxOneWRKEOJrpPNLQQM9YCkYv+kdmn+3HOEYP/m7Ay1uLVWlSsRoXxkF6XcXvGqdoW90u04nEawil2DA4Vnu9PSGZvit2TFiooYQ1pmMA2Na1POFl2e/aRd8SYtR/+P0MiPOel1nAGuohVUBK7pCtl+cyLR4KafTSKo9pvajE2H+qGhplXBntK+FEWzCWWsPf2qJpEZ9gcfcaAgkwq0BGVEpp5gPepeQFvipKvdtsI2HYllFVOOnNyNp1h/pOvGtlWAyyXeWFFwtMMOTqDB9tSxwSpjsaiwGc0qyCaCr+SXTeOZTTtfxSYZt0Xpudi8KKOWJWztuCe9kjS1XGWRC0vAfK+Pefd7NbmipDiu+7AcRPq2uvCFbldwJAxpq5o79h7uGGBbv+UP1TaLwv2i+PtB2io4ZpTZQoxiKQyFw3KimnxR8=
+    ksd@ksd.local
+kind: ConfigMap
+metadata:
+  name: configmap-flag
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service-flag
+spec:
+  selector:
+    run: alpine-flag
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
