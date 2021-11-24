@@ -6,7 +6,8 @@
 DEFAULT_PROJECT_NUM=2
 ## 每个项目拥有的命名空间个数, 例如DEFAULT_PROJECT_NUM=2  DEFAULT_NAMESPACE_NUM=3，将会创建 2*3=6个Namespace
 DEFAULT_NAMESPACE_NUM=3
-DEFAULT_WORKLOAD_NUM=3
+DEFAULT_WORKLOAD_START_NUM=1
+DEFAULT_WORKLOAD_END_NUM=2
 DEFAULT_PROJECT_PREFIX="project"
 DEFAULT_NAMESPACE_PREFIX="ns"
 DEFAULT_START_NUM=1
@@ -98,8 +99,9 @@ function CreateWorkload() {
         # 通过rancher api
         ## result=$(rancher kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f template.yaml)
         # 通过kube api
-        for workload_num in $(seq $DEFAULT_START_NUM $DEFAULT_WORKLOAD_NUM); do
-            cat template.yaml | sed 's/flag/$workload_num/g' | result=$(kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f -)
+        for workload_num in $(seq $DEFAULT_WORKLOAD_START_NUM $DEFAULT_WORKLOAD_END_NUM); do
+            cat template.yaml | sed "s/flag/$workload_num/g" | kubectl -n $DEFAULT_NAMESPACE_PREFIX-$i apply -f -
+            sleep 0.5
         done
         Log "$result in the $DEFAULT_NAMESPACE_PREFIX-$i"
     done
