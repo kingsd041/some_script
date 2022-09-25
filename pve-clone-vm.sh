@@ -14,7 +14,7 @@ case "$1" in
     -h|--help) help; exit;;
 esac
 
-if [[ $1 == '' ]];then
+if [[ $2 == '' ]];then
     help;
     exit;
 fi
